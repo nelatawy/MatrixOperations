@@ -1,9 +1,12 @@
 #include <stdio.h>
-#include <stdbool.h>
+#define float_equals(a,b) ( ( (a) < (b) + 1e-6)  &&  ( (a) > (b) - 1e-6) )
+
+
+
 int main() {
     // use this for user input matrix
     int n;
-    printf("Enter The Number Of Unkowns : ");
+    printf("Enter The Number Of Unkouwns : ");
     scanf("%d", &n);
     float array[n][n+1];
     printf("for aX + bY + cZ ... = d\nEnter The Coefficients for every equation\n");
@@ -14,16 +17,17 @@ int main() {
             float c;
             scanf("%f", &c);
             array[rowFill][colFill] = c;
-        }
-        //kareem was here
+        } 
     }
-
     // float array [n][n + 1] = {{1,3,4,6},{2,3,6,3},{5,3,2,2}}; // use this for code defined matrix
     int length = sizeof(array[0])/sizeof(array[0][0]) - 1;// the minus one is because last elements is from the augmented matrix
     int freeTerms[length];
+    for (int i = 0; i < length; i++) freeTerms[i]  = 0;
+    
     int rowItr= 0 ; int columnItr = 0;
     while(rowItr < length  && columnItr < length) {
-        if (array[rowItr][columnItr] == 0 && rowItr < length - 1) { //Swapping two rows to put the pivot in place and the 2nd condition checks if i am last element so it skips to not swap with sth outside of the array
+        if (array[rowItr][columnItr] == 0 && rowItr < length - 1) { 
+            //Swapping two rows to put the pivot in place and the 2nd condition checks if it's the last element so it skips to not swap with sth outside of the array
             int nonZeroItr = rowItr + 1;
 
             while (array[nonZeroItr][columnItr] == 0 ){
@@ -32,8 +36,9 @@ int main() {
                 }
                  nonZeroItr++;
             }
-
-            if (array[nonZeroItr][columnItr] != 0) {//Swap Two Rows
+            //Swap Two Rows
+            if (!float_equals(array[nonZeroItr][columnItr],0)) {
+                // it's not a simple comparison because float 0 isn't equal to exactly 0
                 int newPivotRowIndex = nonZeroItr;
                 float arrayTemp [length] ;
 
@@ -50,74 +55,56 @@ int main() {
                 }
             } 
             else {
-                freeTerms[columnItr] = 1 ;//if no non zero term can be used as a pivot then its a free term
-                columnItr++;
+                columnItr++; //i will only proceed if there is no zero to not divide by zero
                 continue;
             }
         }
         //Now lets eliminate using this pivot to get RREF
         for (int elimItr = 0; elimItr < length ; elimItr++){
-            if (array[rowItr][columnItr] == 0) {
-                break;
-            }
-            if (elimItr == rowItr)
-            {
-                continue;
-            }
+            if (array[rowItr][columnItr] == 0) break;
+            if (elimItr == rowItr) continue;
+
             float b = array[elimItr][columnItr];
             float a = array[rowItr][columnItr];
-            float factor = -1*b/a ;
-            // printf("%f\t",factor);
+            float factor = -b/a ;
             for (int i = 0; i <= length; i++)
             {
-                // printf("%f",array[rowItr][i] * factor);
                 array[elimItr][i] += array[rowItr][i] * factor;
             }
-            
-            
         }
     rowItr++;
-    columnItr++;
+    columnItr++;//it means that it was a successful elimination procoess so i increment both
     }
 
-
-    // for (int reduceItr = 0 ; reduceItr < length; reduceItr++) {
-    //     float reduceFactor ;
-    //     for (int i = 0; i <= length; i++)
-    //     {
-    //         if (array[reduceItr][i] != 0){
-    //             reduceFactor = array[reduceItr][i];
-    //             break;
-    //         } 
-    //     }
+    //Checking for free terms
+    if (float_equals(array[0][0],0))
+        for (int col = 0; col < n; col++) freeTerms[col] = 1;
         
-    //     for (int reduceCol = 0; reduceCol <= length ; reduceCol++) {
-    //         array[reduceItr][reduceCol] /= reduceFactor ;
-    //     }
-    // }
+    for (int col = 1; col < n; col++)
+    {   
+        if (!float_equals(array[0][col],0) )
+            freeTerms[col] = 1;
+    }
 
 
     printf("The Diagonal Matrix : \n\n")  ;  
     for (int i = 0; i < length; i++){ //Printing The RREF
         printf("|");
         for (int j = 0; j <= length ; j++){
-            printf("%9.3f  ",array[i][j]);
+            (float_equals(array[i][j] , ((int)array[i][j]) ))?printf("%9d  ",(int)array[i][j]):printf("%9.3f  ",array[i][j]);
         }
         printf("|\n");
     }
     printf("\n");
 
-
-
-        //elimination finished
+    //elimination finished
     //Check for inconsistency and infinite number of solutions
-    if (array[length - 1][length - 1] == 0) {
+    if (float_equals(array[length - 1][length - 1],0)) {
         if (array[length-1][length] == 0) {
             printf("The System Has Infinite Number Of Solutions!!\nFree Terms Are : ");
             for (int freeTermCheckItr = 0 ; freeTermCheckItr < length ; freeTermCheckItr++){
                 if (freeTerms[freeTermCheckItr] == 1) {
-                    printf("X%d\t",freeTermCheckItr + 1);
-                    
+                    printf("X%d, ",freeTermCheckItr + 1);
                 }
             }
             printf("\n");
@@ -131,8 +118,7 @@ int main() {
     //print the answers (if unique)
     for (int resultItr = 0 ; resultItr < length ; resultItr++) {
             float answer = (float)array[resultItr][length]/array[resultItr][resultItr];
-            printf("x%d = %0.2f\n", resultItr + 1 , answer);
-                
+            float_equals(answer , ((int)answer) )?printf("X%d = %d\n",resultItr + 1, (int)answer):printf("X%d = %f\n",resultItr + 1, answer);;    
     }
 
  return 0;  
