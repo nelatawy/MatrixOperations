@@ -55,6 +55,7 @@ int main() {
                 }
             } 
             else {
+                freeTerms[columnItr] = 1; //adds the free terms while i'm working
                 columnItr++; //i will only proceed if there is no zero to not divide by zero
                 continue;
             }
@@ -76,17 +77,6 @@ int main() {
     columnItr++;//it means that it was a successful elimination procoess so i increment both
     }
 
-    //Checking for free terms
-    if (float_equals(array[0][0],0))
-        for (int col = 0; col < n; col++) freeTerms[col] = 1;
-        
-    for (int col = 1; col < n; col++)
-    {   
-        if (!float_equals(array[0][col],0) )
-            freeTerms[col] = 1;
-    }
-
-
     printf("The Diagonal Matrix : \n\n")  ;  
     for (int i = 0; i < length; i++){ //Printing The RREF
         printf("|");
@@ -100,12 +90,11 @@ int main() {
     //elimination finished
     //Check for inconsistency and infinite number of solutions
     if (float_equals(array[length - 1][length - 1],0)) {
-        if (array[length-1][length] == 0) {
+        if (float_equals(array[length-1][length],0)) {
             printf("The System Has Infinite Number Of Solutions!!\nFree Terms Are : ");
             for (int freeTermCheckItr = 0 ; freeTermCheckItr < length ; freeTermCheckItr++){
-                if (freeTerms[freeTermCheckItr] == 1) {
-                    printf("X%d, ",freeTermCheckItr + 1);
-                }
+
+                if (freeTerms[freeTermCheckItr] == 1)  printf("X%d ",freeTermCheckItr + 1);
             }
             printf("\n");
             return 0;
