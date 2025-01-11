@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
 //ESSENTIALS
 void swap_arrays(float* arr1, float* arr2 , int length){
     for (int i = 0; i < length; i++)
@@ -21,6 +22,15 @@ float** generate_identity_f(int n){
     }
     for (int i = 0; i < n; i++)identity[i][i] = 1;
     return identity;
+}
+
+float** create_dyn_matrix(int rows,int cols){
+        float**matrix = (float**)malloc(rows*sizeof(float*));
+        for (int i = 0; i < rows; i++)
+        {
+            matrix[i] = (float*)malloc(cols*sizeof(float));
+        }
+        return matrix;
 }
 
 int** generate_identity_i(int n){
@@ -53,6 +63,20 @@ void free_matrix_i(int** matrix , int rows, int cols){
     matrix = NULL;
 }
 
+float** copy_matrix(float** matrix1, int rows,int cols){
+
+    
+    float** matrix_cpy = (float**)malloc(rows*sizeof(float*));
+    for (int i = 0; i < rows; i++)
+    {
+        matrix_cpy[i] = (float*)malloc(cols*sizeof(float));
+        for (int j = 0; j < cols; j++)
+        {
+            matrix_cpy[i][j] = matrix1[i][j];
+        }
+    }
+    return matrix_cpy;
+}
 //matrix IO
 float** input_matrix(int rows, int columns){
 
@@ -251,7 +275,7 @@ int type_of_sol(float**array, int rows,int cols,int index_of_aug){
     
 }
 
-float** combine_matrices(float** matrix1, int cols1, float** matrix2, int cols2, int rows){
+void combine_matrices(float** matrix1, int cols1, float** matrix2, int cols2, int rows){
 
     float* temp;
     float** new_matrix;
@@ -271,12 +295,35 @@ float** combine_matrices(float** matrix1, int cols1, float** matrix2, int cols2,
             matrix1[i][j] = matrix2[i][j - cols1];
         }
     }
-    free_matrix_f(matrix2,rows,cols2);
-    new_matrix = matrix1;
-    matrix1 = NULL;
-
-    return new_matrix;
     
 }
 
-// float** get
+float** mat_inverse(float** matrix, int size){
+    float** array = copy_matrix(matrix,size,size);
+    float** identity = generate_identity_f(3);
+    combine_matrices(array,size,identity,size,size);
+    int len_aug = size;
+
+    int freeTerms[size];
+    int countFreeTerms = 0;
+
+    
+    RREF(array,size,size, len_aug,freeTerms);
+    for (int i = 0; i < size; i++) countFreeTerms += freeTerms[i];
+    if (countFreeTerms != 0) return 0;
+
+    // //elimination finished
+    float** inverse = create_dyn_matrix(size,size);
+
+    for(int curr_aug = 0; curr_aug < len_aug; curr_aug++){
+
+        for (int resultItr = 0 ; resultItr < size ; resultItr++) {
+                float answer = (float)array[resultItr][size + curr_aug]/array[resultItr][resultItr];
+                inverse[resultItr][curr_aug] = answer;   
+        }
+    }
+    free_matrix_f(array,size,size + len_aug);
+    free_matrix_f(identity,size,size);
+    return inverse;
+
+}

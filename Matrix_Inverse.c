@@ -5,56 +5,48 @@
 
 int main() {
     // use this for user input matrix
-    int rows,columns,len_aug;
-    puts("Please enter the number of equations");
-    scanf("%d", &rows);
-    puts("Please enter the number of unknowns");
-    scanf("%d", &columns);
-    puts("please enter the number of augmented columns");
-    scanf("%d", &len_aug);
+    int size,len_aug;
+    puts("Please enter the size (n) for nxn matrix");
+    scanf("%d", &size);
+    len_aug = size;
 
 
-    float** array = input_matrix(rows, columns + len_aug);
-    // float** identity = generate_identity_f(3);
-    // array = combine_matrices(array,columns,identity,3,rows);
-    // print_matrix_f(array,3, 6,0);
+    float** array = input_matrix(size, size);
 
-    // int length = n;
-    int freeTerms[columns];
+    //You can swap the code between startpoint and endpoint by the following line
+    // float** inverse = mat_inverse(array,size);
 
-    RREF(array,rows,columns, len_aug,freeTerms);
+    //start point
+    float** identity = generate_identity_f(3);
+    combine_matrices(array,size,identity,size,size);
 
+    int freeTerms[size];
+    int countFreeTerms = 0;
 
-    printf("The Diagonal Matrix : \n\n") ;  //printing matrix
-    print_matrix_f(array,rows,columns,len_aug);
-    printf("\n");
+    
+    RREF(array,size,size, len_aug,freeTerms);
+    for (int i = 0; i < size; i++) countFreeTerms += freeTerms[i];
+    if (countFreeTerms != 0) return 0;
+
+    printf("\nThe Inverse Matrix :\n") ;  //printing matrix
 
     // //elimination finished
-    int type = type_of_sol(array,rows,columns,1);
-    switch(type){
-        case -1 :
-            puts("The System Is Inconsistent (Has No Solution)");
-            return 0;
-        case 0:
-            break;
-        default:
-            printf("The System Has Infinite Number Of Solutions!! (%d Free Variables )\nFree Terms Are : ", type);
-            for (int freeTermCheckItr = 0 ; freeTermCheckItr < columns ; freeTermCheckItr++){
+    float** inverse = create_dyn_matrix(size,size);
 
-                if (freeTerms[freeTermCheckItr] == 1)  printf("X%d ",freeTermCheckItr + 1);
-            }
-            return 0;
+    for(int curr_aug = 0; curr_aug < len_aug; curr_aug++){
+
+        for (int resultItr = 0 ; resultItr < size ; resultItr++) {
+                float answer = (float)array[resultItr][size + curr_aug]/array[resultItr][resultItr];
+                inverse[resultItr][curr_aug] = answer;   
+        }
+        printf("\n");
     }
-    
-    //print the answers (if unique)
-    int aug_index = len_aug;
-    for (int resultItr = 0 ; resultItr < columns ; resultItr++) {
-            float answer = (float)array[resultItr][columns + aug_index - 1]/array[resultItr][resultItr];
-            float_equals(answer , ((int)answer) )?printf("X%d = %d\n",resultItr + 1, (int)answer):printf("X%d = %f\n",resultItr + 1, answer);;    
-    }
-    
-    free_matrix_f(array,rows,columns+len_aug);
-    // free_matrix_f(identity,3,3);
+    //end point
+
+    print_matrix_f(inverse,size,size,0);
+    free_matrix_f(inverse,size,size);
+    free_matrix_f(identity,size,size);
+    free_matrix_f(array,size,size + len_aug);
     return 0;  
     
 }
