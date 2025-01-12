@@ -1,4 +1,6 @@
 #define float_equals(a,b) ( ( (a) < (b) + 1e-5)  &&  ( (a) > (b) - 1e-5) )
+#define min(a,b) ((a)<(b))?(a):(b);
+#define max(a,b) ((a)>(b))?(a):(b);
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -158,10 +160,10 @@ void print_matrix_i(int** matrix, int rows,int cols, int len_aug){
 void RREF(float** array, int rows, int columns, int len_aug, int*freeTerms){
 
     if(freeTerms != NULL)
-    for(int i = 0; i < rows; i++) freeTerms[i]  = 0;
+    for(int i = 0; i < columns; i++) freeTerms[i]  = 1;
     
     int rowItr= 0 ; int columnItr = 0;
-
+    int min_length = min(rows,columns);
     while(rowItr < rows  && columnItr < columns) {
         if (array[rowItr][columnItr] == 0) { 
             //Swapping two rows to put the pivot in place and the 2nd condition checks if it's the last element so it skips to not swap with sth outside of the array
@@ -172,9 +174,9 @@ void RREF(float** array, int rows, int columns, int len_aug, int*freeTerms){
             //Swap Two Rows
             if (!float_equals(array[nonZeroItr][columnItr],0)) {
                 swap_arrays(array[rowItr], array[nonZeroItr], columns + len_aug);
+
             } 
             else {
-                if(freeTerms != NULL)freeTerms[columnItr] = 1; 
                 columnItr++; //i will only proceed if there is no zero to not divide by zero
                 continue;
             }
@@ -193,11 +195,11 @@ void RREF(float** array, int rows, int columns, int len_aug, int*freeTerms){
                 array[elimItr][i] += array[rowItr][i] * factor;
             }
         }
-    rowItr++;
-    columnItr++;//it means that it was a successful elimination procoess so i increment both
+        if(freeTerms != NULL)freeTerms[columnItr] = 0; 
+        rowItr++;
+        columnItr++;//it means that it was a successful elimination procoess so i increment both
     }
-
-    for (int i = 0; i < columns; i++)
+    for (int i = 0; i < min_length; i++)
     {
         for (int j = 0; j < columns; j++)
         {
@@ -216,7 +218,7 @@ void RREF(float** array, int rows, int columns, int len_aug, int*freeTerms){
 void REF(float** array, int rows, int columns, int len_aug, int*freeTerms){
 
     if(freeTerms != NULL)
-    for(int i = 0; i < rows; i++) freeTerms[i]  = 0;
+    for(int i = 0; i < columns; i++) freeTerms[i]  = 1;
     
     int rowItr= 0 ; int columnItr = 0;
 
@@ -232,7 +234,6 @@ void REF(float** array, int rows, int columns, int len_aug, int*freeTerms){
                 swap_arrays(array[rowItr], array[nonZeroItr], columns);
             } 
             else {
-                if(freeTerms != NULL)freeTerms[columnItr] = 1; 
                 columnItr++; //i will only proceed if there is no zero to not divide by zero
                 continue;
             }
@@ -249,8 +250,9 @@ void REF(float** array, int rows, int columns, int len_aug, int*freeTerms){
                 array[elimItr][i] += array[rowItr][i] * factor;
             }
         }
-    rowItr++;
-    columnItr++;//it means that it was a successful elimination procoess so i increment both
+        if(freeTerms != NULL)freeTerms[columnItr] = 0; 
+        rowItr++;
+        columnItr++;//it means that it was a successful elimination procoess so i increment both
     }
 }
 
@@ -314,6 +316,14 @@ float** mat_inverse(float** matrix, int size){
 
     // //elimination finished
     float** inverse = create_dyn_matrix(size,size);
+    if (inverse == NULL)
+    {
+        perror("error allocating memory for inverse");
+        free_matrix_f(array,size,size + len_aug);
+        free_matrix_f(identity,size,size);
+        exit(1);
+    }
+    
 
     for(int curr_aug = 0; curr_aug < len_aug; curr_aug++){
 

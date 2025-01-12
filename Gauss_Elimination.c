@@ -17,7 +17,7 @@ int main() {
     float** array = input_matrix(rows, columns + len_aug);
     int freeTerms[columns];
 
-    RREF(array,rows,columns, len_aug,freeTerms);
+    REF(array,rows,columns, len_aug,freeTerms);
 
     printf("The Diagonal Matrix \n\n") ;  //printing matrix
     print_matrix_f(array,rows,columns,len_aug);
