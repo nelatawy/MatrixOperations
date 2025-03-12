@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "linear_alg.h"
+#include "include/linear_alg.h"
 
 
 int main() {

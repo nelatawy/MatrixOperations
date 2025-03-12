@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "linear_alg.h"
 
 //ESSENTIALS
 void swap_arrays(float* arr1, float* arr2 , int length){
