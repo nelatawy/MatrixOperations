@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "linear_alg.h"
-
+#include "include/linear_alg.h"
 
 int main() {
+
     // use this for user input matrix
     int rows,columns,len_aug;
     puts("Please enter the number of equations");
